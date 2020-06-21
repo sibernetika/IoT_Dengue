@@ -1,35 +1,38 @@
 #SARAS-Larva Counting
-#V 1.0.1
+#V 2.0.1
 #Update: 
 #- add crop x and y1 and y2 value parameter on running script (14 Februari 2020)
 #- remove enter after larva value (14 Februari 2020) 
+#- change output format (by mas Mulyawan)
+#- change read param system from input param to config.ini 
 
 #import Library
 import cv2 as cv
 import argparse
 import numpy as np
 import imutils
+import configparser
+config = configparser.ConfigParser()
+config.read('IoTDengue.ini')
 
 # Running parameter function 
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=True) #lokasi gambar
-ap.add_argument("-j", "--cropx", required=True) #crop horizontal (sumbu x)
-ap.add_argument("-k", "--cropy1", required=True) #crop vertikal (sumbu y) dari bawah ke atas
-ap.add_argument("-l", "--cropy2", required=True) #crop di posisi tepat perbatasan air 
+ap.add_argument("-j", "--parameter", required=True) #jenis parameter
+ap.add_argument("-k", "--node", required=True) #nomor node
 args = vars(ap.parse_args())
+larvaparam = config[args["parameter"]][args["node"]]
+larvaparam = larvaparam.split(',')
+xcrop = int(larvaparam[0])
+y1crop = int(larvaparam[1])
+y2crop = int(larvaparam[2])
 
 # Load, rotate dan crop image
 original = cv.imread(args["image"])
-original = imutils.rotate(original,180)
+#original = imutils.rotate(original,180)
 h = original.shape[0]
 w = original.shape[1]
-x = args["cropx"]
-y = args["cropy1"]
-z = args["cropy2"]
-x = int(x)
-y = int(y)
-z = int(z)
-original = original[z:h-y,x:w]
+original = original[y2crop:h-y1crop,xcrop:w]
 
 # RGB to HSV converter
 hsv = cv.cvtColor(original, cv.COLOR_BGR2HSV)
@@ -80,4 +83,5 @@ blank_ch = 255 * np.ones_like(label_hue)
 labeled_img = cv.merge([label_hue, blank_ch, blank_ch])
 labeled_img = cv.cvtColor(labeled_img, cv.COLOR_HSV2BGR)
 labeled_img[label_hue == 0] = 0
-print(int(ret-2), end='')
+# print(int(ret-2), end='')
+print('{"sys"}:{"larvanumber":', int(ret-2), '}', end='')

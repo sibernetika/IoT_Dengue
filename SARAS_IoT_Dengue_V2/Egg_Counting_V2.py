@@ -1,16 +1,21 @@
 #SARAS-EGG Counting
-#V 1.0.2 
+#V 2.0.2 
 #Update: 
 #- add crop value x parameter on running script (4 Februari 2020)
 #- remove string "Egg Counted is:" (14 Februari 2020)
 #- remove enter after egg value (14 Februari 2020)
 #- add crop y value parameter on running script (14 Februari 2020)
+#- change output format (by mas Mulyawan)
+#- change read param system from input param to config.ini 
 
 #Library import 
 import cv2
 import numpy as np
 import imutils
 import argparse
+import configparser
+config = configparser.ConfigParser()
+config.read('IoTDengue.ini')
 
 # uncomment when need to plot an image
 #from matplotlib import pyplot as plt
@@ -18,20 +23,21 @@ import argparse
 # Running function parameters
 ap = argparse.ArgumentParser()
 ap.add_argument('-i','--image',required=True) #lokasi gambar
-ap.add_argument('-j','--cropx',required=True) #crop horizontal (sumbu x)
-ap.add_argument('-k','--cropy',required=True) #crop vertikal bertepatan dengan perbatasan air
+ap.add_argument('-j','--parameter',required=True) #Jenis parameter 
+ap.add_argument('-k','--node',required=True) #nomor node
 args = vars(ap.parse_args())
+eggparam = config[args["parameter"]][args["node"]]
+eggparam = eggparam.split(',')
+xcrop = int(eggparam[0])
+ycrop = int(eggparam[1])
+
 
 # Load, rotate and crop image
 img = cv2.imread(args["image"])
 img = imutils.rotate(img,180)
 h = img.shape[0]
 w = img.shape[1]
-x = args["cropx"]
-y = args["cropy"]
-x = int(x)
-y = int(y)
-img = img[0:h-y,x:w]
+img = img[0:h-ycrop,xcrop:w]
 
 # Convert image to HSV and Split to get value part
 hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -72,4 +78,5 @@ blank_ch = 255 * np.ones_like(label_hue)
 labeled_img = cv2.merge([label_hue, blank_ch, blank_ch])
 labeled_img = cv2.cvtColor(labeled_img, cv2.COLOR_HSV2BGR)
 labeled_img[label_hue == 0] = 0
-print(int(ret-2), end='')
+#print(int(ret-2), end='')
+print('{"sys"}:{"eggnumber":', int(ret-2), '}', end='')
