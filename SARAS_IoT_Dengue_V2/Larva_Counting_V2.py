@@ -84,4 +84,4 @@ labeled_img = cv.merge([label_hue, blank_ch, blank_ch])
 labeled_img = cv.cvtColor(labeled_img, cv.COLOR_HSV2BGR)
 labeled_img[label_hue == 0] = 0
 # print(int(ret-2), end='')
-print('{"sys"}:{"larvanumber":', int(ret-2), '}', end='')
+print('{"sys":{"larvanumber":', int(ret-2), '}}', end='')
