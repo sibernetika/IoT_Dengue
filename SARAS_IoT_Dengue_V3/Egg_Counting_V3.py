@@ -16,7 +16,7 @@ import imutils
 import argparse
 import configparser
 config = configparser.ConfigParser()
-config.read('/opt/lampp/htdocs/smartdengue/payton/IoT_Dengue.ini')
+config.read('/opt/lampp/htdocs/smartdengue/payton/IoTDengue.ini')
 
 # uncomment when need to plot an image
 #from matplotlib import pyplot as plt

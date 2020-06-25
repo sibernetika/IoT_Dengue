@@ -14,7 +14,7 @@ import numpy as np
 import imutils
 import configparser
 config = configparser.ConfigParser()
-config.read('/opt/lampp/htdocs/smartdengue/payton/IoT_Dengue.ini')
+config.read('/opt/lampp/htdocs/smartdengue/payton/IoTDengue.ini')
 
 # Running parameter function 
 ap = argparse.ArgumentParser()
