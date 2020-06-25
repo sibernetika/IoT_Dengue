@@ -99,4 +99,4 @@ with open("/opt/lampp/htdocs/smartdengue/payton/log_value/"+args["node"]+".log",
     config.write(configfile)
 
 #print the result  
-print('{"sys":{"larvanumber":', int(ret-2), '}}', end='')
+print('{"sys":{"larvanumber":', int(ret), '}}', end='')
