@@ -1,0 +1,9 @@
+[Information]
+data = Jumlah telur dan larva
+
+[Egg_Counting]
+node_39 = 0
+
+[Larva_Counting]
+node_39 = 0
+
