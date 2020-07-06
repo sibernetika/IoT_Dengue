@@ -1,5 +1,5 @@
 #SARAS-EGG Counting
-#V 3.0.2 
+#V 3.0.3 
 #Update: 
 #- add crop value x parameter on running script (4 Februari 2020)
 #- remove string "Egg Counted is:" (14 Februari 2020)
@@ -8,6 +8,7 @@
 #- change output format (by mas Mulyawan)
 #- change read param system from input param to config.ini
 #- update new mechanism with blur photo protection (resulted in small reads suddenly) 
+#- update cross check criteria
 
 #Library import 
 import cv2
@@ -86,7 +87,7 @@ labeled_img[label_hue == 0] = 0
 config = configparser.RawConfigParser()
 config.read("/opt/lampp/htdocs/smartdengue/payton/log_value/"+args["node"]+".log")
 val_bef = int(config[args["parameter"]][args["node"]])
-if abs(ret-val_bef)>10 or ret==0: 
+if abs(ret-val_bef)>10: 
     if ret < val_bef:
         ret = val_bef
 
