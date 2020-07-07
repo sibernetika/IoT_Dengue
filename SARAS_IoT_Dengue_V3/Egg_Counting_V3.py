@@ -1,14 +1,15 @@
 #SARAS-EGG Counting
-#V 3.0.3 
+#V 3.1.4
 #Update: 
 #- add crop value x parameter on running script (4 Februari 2020)
 #- remove string "Egg Counted is:" (14 Februari 2020)
 #- remove enter after egg value (14 Februari 2020)
 #- add crop y value parameter on running script (14 Februari 2020)
 #- change output format (by mas Mulyawan)
-#- change read param system from input param to config.ini
-#- update new mechanism with blur photo protection (resulted in small reads suddenly) 
-#- update cross check criteria
+#- change read param system from input param to config.ini (Juni 2020)
+#- update new mechanism with blur photo protection (resulted in small reads suddenly) (Juni 2020)
+#- update cross check criteria (Juni 2020)
+#- update offset mechanism to give zero initial value (7 Juli 2020)
 
 #Library import 
 import cv2
@@ -32,6 +33,7 @@ eggparam = config[args["parameter"]][args["node"]]
 eggparam = eggparam.split(',')
 xcrop = int(eggparam[0])
 ycrop = int(eggparam[1])
+offset = int(eggparam[2])
 
 
 # Load, rotate and crop image
@@ -90,8 +92,14 @@ val_bef = int(config[args["parameter"]][args["node"]])
 if abs(ret-val_bef)>10: 
     if ret < val_bef:
         ret = val_bef
-
+		
+#give offset value if neccessary
+ret = ret-offset
+if ret<0:
+	ret=0
 str(ret)
+
+#write new value
 config.set(args["parameter"], args["node"], ret)
 with open("/opt/lampp/htdocs/smartdengue/payton/log_value/"+args["node"]+".log", 'w') as configfile:
     config.write(configfile)
