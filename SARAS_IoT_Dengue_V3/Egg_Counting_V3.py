@@ -1,5 +1,5 @@
 #SARAS-EGG Counting
-#V 3.1.4
+#V 3.2.4
 #Update: 
 #- add crop value x parameter on running script (4 Februari 2020)
 #- remove string "Egg Counted is:" (14 Februari 2020)
@@ -10,6 +10,8 @@
 #- update new mechanism with blur photo protection (resulted in small reads suddenly) (Juni 2020)
 #- update cross check criteria (Juni 2020)
 #- update offset mechanism to give zero initial value (7 Juli 2020)
+#- update threshold value to give difference in sensitivity (8 Juli 2020)
+#- update image sharpening algorithm (8 Juli 2020)
 
 #Library import 
 import cv2
@@ -23,6 +25,19 @@ config.read('/opt/lampp/htdocs/smartdengue/payton/IoTDengue.ini')
 # uncomment when need to plot an image
 #from matplotlib import pyplot as plt
 
+# image sharpening algorithm
+def unsharp_mask(image, kernel_size=(5, 5), sigma=1.0, amount=1.0, threshold=0):
+    """Return a sharpened version of the image, using an unsharp mask."""
+    blurred = cv2.GaussianBlur(image, kernel_size, sigma)
+    sharpened = float(amount + 1) * image - float(amount) * blurred
+    sharpened = np.maximum(sharpened, np.zeros(sharpened.shape))
+    sharpened = np.minimum(sharpened, 255 * np.ones(sharpened.shape))
+    sharpened = sharpened.round().astype(np.uint8)
+    if threshold > 0:
+        low_contrast_mask = np.absolute(image - blurred) < threshold
+        np.copyto(sharpened, image, where=low_contrast_mask)
+    return sharpened
+
 # Running function parameters
 ap = argparse.ArgumentParser()
 ap.add_argument('-i','--image',required=True) #lokasi gambar
@@ -34,11 +49,13 @@ eggparam = eggparam.split(',')
 xcrop = int(eggparam[0])
 ycrop = int(eggparam[1])
 offset = int(eggparam[2])
+threshold = int(eggparam[3])
 
 
 # Load, rotate and crop image
 img = cv2.imread(args["image"])
-img = imutils.rotate(img,180)
+sharp_img = unsharp_mask(img)
+img = imutils.rotate(sharp_img,180)
 h = img.shape[0]
 w = img.shape[1]
 img = img[0:h-ycrop,xcrop:w]
@@ -48,7 +65,7 @@ hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 hue ,saturation ,value = cv2.split(hsv)
 
 # Apply adaptive threshold with Gaussian
-thresh = cv2.adaptiveThreshold(value, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 255, 17)
+thresh = cv2.adaptiveThreshold(value, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 255, threshold)
 thresh = cv2.bitwise_not(thresh)
 
 # Detecting blobs as noise
