@@ -12,6 +12,7 @@
 #- update offset mechanism to give zero initial value (7 Juli 2020)
 #- update threshold value to give difference in sensitivity (8 Juli 2020)
 #- update image sharpening algorithm (8 Juli 2020)
+#- update lock value before (remove value tolerance system) (15 Agustus 2020)
 
 #Library import 
 import cv2
@@ -106,9 +107,11 @@ labeled_img[label_hue == 0] = 0
 config = configparser.RawConfigParser()
 config.read("/opt/lampp/htdocs/smartdengue/payton/log_value/"+args["node"]+".log")
 val_bef = int(config[args["parameter"]][args["node"]])
-if abs(ret-val_bef)>10: 
-    if ret < val_bef:
-        ret = val_bef
+# if abs(ret-val_bef)>10: # Update checking mechanism
+#     if ret < val_bef:
+#         ret = val_bef
+if ret < val_bef:
+    ret = val_bef
 		
 #give offset value if neccessary
 ret = ret-offset
